@@ -1,0 +1,239 @@
+═══════════════════════════════════════════════════════════════
+  SISTEMA M v3 — Instruções (Linux Ubuntu)
+  Banco de dados local · tarefas recorrentes · acesso pela rede
+═══════════════════════════════════════════════════════════════
+
+
+O QUE VOCÊ TEM
+───────────────────────────────────────────────────────────────
+  instalar.sh           ← execute UMA VEZ para configurar tudo
+  iniciar-sistema-m.sh  ← início manual (debug); normalmente
+                           não precisa — o sistema sobe sozinho
+  server.js             ← servidor local (Node.js vanilla)
+  index.html            ← interface
+  dados/                ← criada automaticamente na 1ª vez
+    sistema-m.json      ← SEU BANCO DE DADOS (arquivo real)
+    backups/            ← backups diários (60 dias)
+  INSTRUCOES.txt        ← este arquivo
+
+
+───────────────────────────────────────────────────────────────
+INSTALAÇÃO (UMA VEZ SÓ)
+───────────────────────────────────────────────────────────────
+
+  1. Copie a pasta para um lugar fixo no servidor.
+     Recomendo: /home/SEU_USUARIO/SistemaM/
+
+  2. Abra o terminal nessa pasta e execute:
+
+       chmod +x instalar.sh
+       sudo ./instalar.sh
+
+  3. O script faz tudo automaticamente:
+       • instala o Node.js se precisar
+       • cria o serviço systemd
+       • ativa o início automático no boot
+       • já sobe o servidor
+
+  4. Abra no navegador: http://localhost:3737
+
+  Pronto. Da próxima vez que ligar o PC, o servidor já estará
+  rodando antes mesmo de você abrir o navegador.
+
+
+───────────────────────────────────────────────────────────────
+COMO FUNCIONA
+───────────────────────────────────────────────────────────────
+
+  O servidor roda como um serviço do sistema (systemd).
+  Isso significa:
+
+    • Sobe SOZINHO quando o PC liga — sem precisar fazer nada.
+    • Reinicia automaticamente se travar.
+    • Fica rodando mesmo sem ninguém logado.
+
+  Você acessa pelo navegador normalmente:
+    • Neste PC:       http://localhost:3737
+    • De outro PC/celular na mesma rede:
+                      http://IP_DO_SERVIDOR:3737
+
+  Para ver o IP da sua rede local:
+       ip a | grep "inet " | grep -v 127
+  (procure algo como 192.168.X.X)
+
+
+───────────────────────────────────────────────────────────────
+COMANDOS DO DIA A DIA
+───────────────────────────────────────────────────────────────
+
+  Ver se está rodando:
+       sudo systemctl status sistema-m
+
+  Ver logs em tempo real:
+       sudo journalctl -u sistema-m -f
+
+  Reiniciar o servidor:
+       sudo systemctl restart sistema-m
+
+  Parar o servidor:
+       sudo systemctl stop sistema-m
+
+  Iniciar manualmente:
+       sudo systemctl start sistema-m
+
+  Desabilitar o início automático:
+       sudo systemctl disable sistema-m
+
+
+───────────────────────────────────────────────────────────────
+ACESSAR DE OUTRO DISPOSITIVO (REDE LOCAL)
+───────────────────────────────────────────────────────────────
+
+  Você pode usar o Sistema M do notebook ou celular desde
+  que estejam na MESMA rede wi-fi/cabo que o servidor.
+
+  1. No servidor, descubra o IP local:
+         ip a | grep "inet " | grep -v 127
+     Vai aparecer algo como 192.168.0.10 ou 10.0.0.5
+
+  2. No notebook/celular, abra o navegador e acesse:
+         http://192.168.0.10:3737
+     (substitua pelo IP que encontrou)
+
+  3. Pronto — mesmo Sistema M, mesmo banco de dados.
+
+  Importante:
+    • Se mudar de roteador, o IP pode mudar. Rode o ip a de novo.
+    • Se não conectar, verifique o firewall (veja abaixo).
+
+
+───────────────────────────────────────────────────────────────
+FIREWALL (SE NÃO CONECTAR DA REDE LOCAL)
+───────────────────────────────────────────────────────────────
+
+  Se estiver usando o ufw (firewall padrão do Ubuntu):
+
+       sudo ufw allow 3737/tcp
+       sudo ufw reload
+
+  Para verificar:
+       sudo ufw status
+
+
+───────────────────────────────────────────────────────────────
+O QUE O SISTEMA FAZ
+───────────────────────────────────────────────────────────────
+
+  ● 3 PILARES
+    - Estabilidade (o que paga as contas)
+    - Crescimento (seu UM projeto da temporada, 3-6 meses)
+    - Laboratório (curiosidades, sem compromisso)
+
+  ● PROJETOS
+    Cada projeto tem: nome, descrição, pilar, fase (lua de
+    mel / platô / vale / otimismo), progresso %, compromisso
+    em meses, próximo passo concreto.
+
+  ● TAREFAS DENTRO DE CADA PROJETO
+    Divida o projeto em micro-tarefas.
+    Cada tarefa pode ser:
+      - ÚNICA: aparece só uma vez, some ao completar
+      - DIÁRIA: aparece em "Hoje" TODO DIA automaticamente,
+        até você completar ou apagar
+    Cada tarefa tem:
+      - "+X%":     quanto soma ao progresso do projeto quando
+                   completa
+      - "+Y%·10%": quanto soma ao bater só o +10% parcial
+
+  ● REGRA DOS 10%
+    Cada tarefa diária tem seu próprio botão "+10%".
+    A barra lateral na tela Hoje mostra:
+      - 10% hoje (geral)
+      - streak (dias seguidos com ao menos 1 +10%)
+      - total
+      - quebra POR PROJETO
+
+  ● FOCO DA TEMPORADA (countdown)
+    Caixa laranja/cyan na tela Hoje mostra a nota de foco +
+    quantos dias faltam até o fim previsto da temporada.
+    Clique "Editar temporada" pra mudar.
+
+  ● CARD "ONTEM VOCÊ..."
+    No topo da tela Hoje: resumo automático do dia anterior.
+    Antídoto contra impulso de trocar de foco.
+
+  ● BACKUPS
+    Todo dia na 1ª escrita: backup automático em
+    dados/backups/sistema-m-YYYY-MM-DD.json (60 dias).
+    Antes de qualquer reset: ANTES-DO-RESET-xxx.json.
+
+
+───────────────────────────────────────────────────────────────
+ATALHOS DE TECLADO
+───────────────────────────────────────────────────────────────
+
+  1 / 2 / 3 / 4 / ?     trocar de view
+  N                     captura rápida
+  Esc                   fechar modal
+  Enter                 enviar (nos inputs)
+
+
+───────────────────────────────────────────────────────────────
+IMPORTAR / EXPORTAR / RESETAR
+───────────────────────────────────────────────────────────────
+
+  Botões no canto inferior esquerdo:
+
+  Exportar    baixa seu sistema-m.json inteiro
+  Importar    carrega um JSON. SUBSTITUI os dados atuais
+              (backup automático antes)
+  Reset       apaga TUDO e recria vazio
+              (backup ANTES-DO-RESET é salvo primeiro)
+
+  Também dá pra editar dados/sistema-m.json à mão:
+       nano ~/SistemaM/dados/sistema-m.json
+
+
+───────────────────────────────────────────────────────────────
+SE DER ERRO
+───────────────────────────────────────────────────────────────
+
+  Servidor não responde / faixa "OFFLINE" no app
+       sudo systemctl restart sistema-m
+       sudo journalctl -u sistema-m -n 50
+
+  "Porta 3737 já em uso"
+       O servidor já está rodando. Acesse localhost:3737.
+       Se quiser reiniciar: sudo systemctl restart sistema-m
+
+  Não acessa do notebook
+       1) Estão na MESMA rede? Confira.
+       2) Liberou a porta no ufw? (ver seção FIREWALL acima)
+       3) Usou o IP LAN (não localhost)? O notebook NÃO enxerga
+          localhost do outro PC.
+
+  Dados sumiram
+       Olhe dados/backups/. Copie um arquivo pra fora,
+       renomeie pra sistema-m.json, substitua o atual.
+       Reinicie: sudo systemctl restart sistema-m
+
+
+───────────────────────────────────────────────────────────────
+FILOSOFIA
+───────────────────────────────────────────────────────────────
+
+  Este sistema não é um to-do list bonito. É uma defesa
+  contra o cemitério de projetos abandonados.
+
+  Regras:
+    - UM projeto de crescimento por vez. Os outros esperam.
+    - Compromisso mínimo de 3-6 meses antes de reavaliar.
+    - Todo dia, fazer o mínimo (+10%) vale mais que esperar
+      o dia perfeito pra fazer tudo.
+    - O pior inimigo é a vontade de trocar de projeto
+      justamente no momento em que o cérebro está processando
+      (fase "vale").
+
+  Bom uso.
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,36 @@
+# ── dados do usuário ─────────────────────────────────────────────────────────
+dados/
+
+# ── claude code (configurações locais da IDE) ────────────────────────────────
+.claude/
+
+# ── chaves e segredos ────────────────────────────────────────────────────────
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.crt
+id_rsa
+id_ed25519
+*.secret
+secrets.json
+credentials.json
+
+# ── sistema operacional ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── editores ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── node (caso alguém instale deps no futuro) ────────────────────────────────
+node_modules/
+npm-debug.log*

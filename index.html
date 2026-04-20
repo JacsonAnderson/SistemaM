@@ -1,0 +1,1482 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sistema M</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:ital,wght@0,300..800;1,300..800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0908;--bg-2:#121110;--bg-3:#1B1916;--bg-4:#24211C;
+  --fg:#F4EFE6;--fg-2:#C9C2B4;--fg-dim:#8B8376;--fg-mute:#55504A;
+  --line:rgba(244,239,230,0.08);--line-2:rgba(244,239,230,0.18);--line-3:rgba(244,239,230,0.35);
+  --accent:#FF7A3C;--accent-2:#FFB37A;--cool:#6CB5CC;--green:#8AB87A;--red:#E86A5C;--yellow:#E8C95C;
+  --radius:2px;--radius-lg:4px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;background-image:radial-gradient(circle at 20% 0%,rgba(255,122,60,0.05),transparent 40%),radial-gradient(circle at 95% 100%,rgba(108,181,204,0.04),transparent 40%),repeating-linear-gradient(0deg,transparent 0 39px,rgba(244,239,230,0.015) 39px 40px),repeating-linear-gradient(90deg,transparent 0 39px,rgba(244,239,230,0.015) 39px 40px)}
+::selection{background:var(--accent);color:var(--bg)}
+h1,h2,h3,h4,.serif{font-family:'Fraunces',Georgia,serif;font-weight:300;letter-spacing:-0.01em}
+.display{font-family:'Fraunces',Georgia,serif;font-variation-settings:"opsz" 144;font-weight:300;letter-spacing:-0.03em}
+.italic-serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400}
+.overline{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--fg-dim);font-weight:500}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+@media (max-width:900px){.app{grid-template-columns:1fr}}
+.sidebar{border-right:1px solid var(--line);padding:28px 22px;display:flex;flex-direction:column;gap:28px;background:linear-gradient(180deg,rgba(255,122,60,0.03),transparent 40%);position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand .mark{font-family:'Fraunces',serif;font-variation-settings:"opsz" 144;font-weight:300;font-size:72px;line-height:0.85;letter-spacing:-0.05em}
+.brand .mark em{font-style:italic;color:var(--accent)}
+.brand .tag{font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--fg-dim);margin-top:6px}
+.brand .user{font-size:11px;color:var(--fg-2);margin-top:2px;min-height:1em}
+.sync-badge{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg-dim);padding:6px 0}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.sync-dot.error{background:var(--red);box-shadow:0 0 8px var(--red)}
+.sync-dot.saving{background:var(--yellow);box-shadow:0 0 8px var(--yellow);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:0.3}}
+.nav{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:var(--radius);font-size:12px;color:var(--fg-2);border:1px solid transparent;transition:all 0.15s ease}
+.nav button:hover{background:var(--bg-2);color:var(--fg)}
+.nav button.active{background:var(--bg-3);color:var(--fg);border-color:var(--line-2)}
+.nav button .key{font-size:9px;color:var(--fg-mute);padding:2px 5px;border:1px solid var(--line);border-radius:2px}
+.nav button.active .key{color:var(--accent);border-color:rgba(255,122,60,0.3)}
+.sidebar .meta{margin-top:auto;padding-top:18px;border-top:1px solid var(--line);font-size:10px;color:var(--fg-mute);line-height:1.7}
+.sidebar .meta strong{color:var(--fg-2);font-weight:500}
+.sidebar-actions{display:flex;gap:6px;flex-wrap:wrap}
+.sidebar-actions button{all:unset;cursor:pointer;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:6px 9px;border:1px solid var(--line);border-radius:2px;color:var(--fg-dim)}
+.sidebar-actions button:hover{color:var(--fg);border-color:var(--line-2)}
+main{padding:36px 48px 80px;max-width:1400px;width:100%}
+@media (max-width:700px){main{padding:24px 20px 60px}}
+.header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:28px;border-bottom:1px solid var(--line);margin-bottom:32px;gap:24px;flex-wrap:wrap}
+.header .title h1{font-size:42px;line-height:1;font-variation-settings:"opsz" 144}
+.header .title h1 em{color:var(--accent);font-family:'Instrument Serif',serif;font-weight:400}
+.header .title p{margin-top:10px;color:var(--fg-dim);font-size:12px;max-width:58ch}
+.header .stamp{text-align:right;font-size:10px;color:var(--fg-dim);letter-spacing:0.15em;text-transform:uppercase;line-height:1.8}
+.header .stamp .big{font-size:26px;font-family:'Fraunces',serif;font-weight:300;color:var(--fg);letter-spacing:-0.02em;text-transform:none;display:block;line-height:1}
+.block{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 24px}
+.block + .block{margin-top:20px}
+.section-title{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.section-title h2{font-size:22px;font-weight:300;letter-spacing:-0.01em}
+.section-title h2 em{font-family:'Instrument Serif',serif;color:var(--accent);font-weight:400}
+.section-title .num{font-family:'Fraunces',serif;font-size:11px;color:var(--fg-mute);letter-spacing:0.3em}
+.yesterday{padding:24px 28px;background:linear-gradient(135deg,rgba(108,181,204,0.06),transparent 60%);border:1px solid var(--line);border-left:3px solid var(--cool);border-radius:var(--radius-lg);margin-bottom:20px;position:relative;overflow:hidden}
+.yesterday::before{content:"ontem.";position:absolute;top:-20px;right:-15px;font-family:'Fraunces',serif;font-size:130px;font-weight:300;font-style:italic;color:var(--cool);opacity:0.05;line-height:1}
+.yesterday h3{font-size:20px;font-weight:300;margin-bottom:8px;position:relative;z-index:1}
+.yesterday h3 em{font-family:'Instrument Serif',serif;color:var(--cool);font-weight:400}
+.yesterday .summary{font-size:13px;color:var(--fg-2);line-height:1.7;position:relative;z-index:1}
+.yesterday .summary strong{color:var(--fg);font-weight:500}
+.yesterday .summary em{font-family:'Instrument Serif',serif;font-style:italic;color:var(--accent);font-size:15px}
+.yesterday .mini-tasks{margin-top:12px;display:flex;flex-direction:column;gap:4px;position:relative;z-index:1}
+.yesterday .mini-task{font-size:12px;color:var(--fg-dim);padding-left:16px;position:relative}
+.yesterday .mini-task::before{content:"✓";position:absolute;left:0;color:var(--green)}
+.yesterday .mini-task.partial::before{content:"◐";color:var(--accent)}
+.yesterday .mini-task.undone{color:var(--fg-mute)}
+.yesterday .mini-task.undone::before{content:"·";color:var(--fg-mute)}
+.yesterday .motto{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:'Instrument Serif',serif;font-style:italic;font-size:16px;color:var(--fg-2);position:relative;z-index:1}
+.growth-bar{padding:20px 24px;background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-lg);margin-bottom:24px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.growth-bar .gb-info .label{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg-mute);margin-bottom:4px}
+.growth-bar .gb-info .name{font-family:'Fraunces',serif;font-size:22px;font-weight:400;line-height:1.2}
+.growth-bar .gb-info .name em{font-family:'Instrument Serif',serif;color:var(--accent)}
+.growth-bar .gb-info .next{font-size:12px;color:var(--fg-dim);margin-top:8px;font-family:'Instrument Serif',serif;font-size:14px}
+.growth-bar .gb-progress{display:flex;flex-direction:column;gap:6px;min-width:240px}
+.growth-bar .gb-progress .bar{height:4px;background:var(--bg-4);border-radius:2px;overflow:hidden}
+.growth-bar .gb-progress .bar .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 0.4s}
+.growth-bar .gb-progress .timing{font-size:10px;color:var(--fg-dim);letter-spacing:0.1em;text-transform:uppercase;display:flex;justify-content:space-between}
+.growth-bar.empty{border-left-color:var(--line-3)}
+.growth-bar.empty .gb-info .name{color:var(--fg-mute);font-style:italic}
+@media (max-width:700px){.growth-bar{grid-template-columns:1fr}.growth-bar .gb-progress{min-width:0}}
+.pillars{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+@media (max-width:1100px){.pillars{grid-template-columns:1fr}}
+.pillar{background:var(--bg-2);border:1px solid var(--line);padding:20px 22px 24px;border-radius:var(--radius-lg);min-height:400px;display:flex;flex-direction:column;gap:14px}
+.pillar.stability{border-top:2px solid var(--cool)}
+.pillar.growth{border-top:2px solid var(--accent);background:linear-gradient(180deg,rgba(255,122,60,0.04),var(--bg-2) 40%)}
+.pillar.laboratory{border-top:2px solid var(--green)}
+.pillar .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pillar .head .tag{font-size:9px;letter-spacing:0.25em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--line-2);border-radius:2px;color:var(--fg-dim)}
+.pillar.stability .head .tag{color:var(--cool);border-color:rgba(108,181,204,0.3)}
+.pillar.growth .head .tag{color:var(--accent);border-color:rgba(255,122,60,0.3)}
+.pillar.laboratory .head .tag{color:var(--green);border-color:rgba(138,184,122,0.3)}
+.pillar h3{font-size:24px;font-weight:300;line-height:1}
+.pillar h3 em{font-family:'Instrument Serif',serif;font-weight:400}
+.pillar .subtitle{font-size:11px;color:var(--fg-dim);font-family:'Instrument Serif',serif;font-size:14px;line-height:1.35}
+.pillar .current{padding:14px;background:var(--bg-3);border:1px dashed var(--line-2);border-radius:2px;display:flex;flex-direction:column;gap:6px;min-height:90px;cursor:pointer;transition:all 0.15s}
+.pillar .current:hover{border-color:var(--line-3);background:var(--bg-4)}
+.pillar .current .label{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg-mute)}
+.pillar .current .name{font-family:'Fraunces',serif;font-size:18px;font-weight:400;line-height:1.2}
+.pillar .current .desc{font-size:11px;color:var(--fg-dim);line-height:1.5}
+.pillar .current.empty .name{color:var(--fg-mute);font-style:italic}
+.pillar .current.empty .name::before{content:"+ "}
+.pillar .projects-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pillar-actions{margin-top:auto;display:flex;gap:8px}
+.pillar-actions button{all:unset;cursor:pointer;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:8px 11px;border:1px solid var(--line-2);border-radius:2px;color:var(--fg-2);transition:all 0.15s}
+.pillar-actions button:hover{border-color:var(--line-3);color:var(--fg);background:var(--bg-3)}
+.pcard{padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:2px;cursor:pointer;transition:all 0.15s;display:flex;flex-direction:column;gap:6px}
+.pcard:hover{border-color:var(--line-2);background:var(--bg-3)}
+.pcard .pcard-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pcard .pcard-name{font-size:12px;color:var(--fg);font-weight:500;line-height:1.3}
+.pcard .pcard-phase{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg-mute);white-space:nowrap}
+.pcard .pbar{height:3px;background:var(--bg-4);border-radius:2px;overflow:hidden}
+.pcard .pbar .fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.3s}
+.pcard.phase-luademel .fill{background:var(--yellow)}
+.pcard.phase-plato .fill{background:var(--cool)}
+.pcard.phase-vale .fill{background:var(--red)}
+.pcard.phase-otimismo .fill{background:var(--green)}
+.pcard .pcard-tasks{font-size:10px;color:var(--fg-mute);letter-spacing:0.05em;margin-top:2px}
+.today-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+@media (max-width:1000px){.today-grid{grid-template-columns:1fr}}
+.focus-block{display:flex;flex-direction:column;gap:10px}
+.focus-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:13px 16px;background:var(--bg-2);border:1px solid var(--line);border-radius:3px;transition:all 0.2s}
+.focus-row:hover{border-color:var(--line-2)}
+.focus-row.done{opacity:0.5}
+.focus-row.done .focus-text{text-decoration:line-through;text-decoration-color:var(--fg-mute)}
+.focus-row.partial{border-left:2px solid var(--accent)}
+.focus-check{width:18px;height:18px;border:1.5px solid var(--line-3);border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;background:transparent}
+.focus-check:hover{border-color:var(--accent)}
+.focus-check.checked{background:var(--accent);border-color:var(--accent)}
+.focus-check.checked::after{content:"";width:5px;height:9px;border-right:2px solid var(--bg);border-bottom:2px solid var(--bg);transform:translate(0,-1px) rotate(45deg)}
+.focus-check.partial{background:transparent;border-color:var(--accent);position:relative;overflow:hidden}
+.focus-check.partial::after{content:"";position:absolute;left:0;top:0;bottom:0;width:50%;background:var(--accent);border-radius:0}
+.focus-text{font-size:13px;color:var(--fg);font-family:'JetBrains Mono',monospace}
+.focus-text .rec-badge{display:inline-block;font-size:8px;padding:1px 5px;border:1px solid rgba(255,122,60,0.3);border-radius:2px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-left:8px;vertical-align:middle}
+.focus-project{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg-dim);padding:3px 7px;border:1px solid var(--line);border-radius:2px;cursor:pointer}
+.focus-project:hover{border-color:var(--line-2);color:var(--fg-2)}
+.focus-actions{display:flex;gap:4px}
+.focus-btn-ten{all:unset;cursor:pointer;font-size:10px;letter-spacing:0.08em;padding:5px 8px;border:1px solid rgba(255,122,60,0.3);color:var(--accent);border-radius:2px;transition:all 0.15s;white-space:nowrap;font-weight:600}
+.focus-btn-ten:hover{background:rgba(255,122,60,0.1)}
+.focus-btn-ten.on{background:var(--accent);color:var(--bg)}
+.focus-delete{cursor:pointer;color:var(--fg-mute);font-size:14px;padding:4px 6px;transition:color 0.15s}
+.focus-delete:hover{color:var(--red)}
+.empty-hint{padding:24px;text-align:center;color:var(--fg-mute);font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;border:1px dashed var(--line);border-radius:3px;line-height:1.6}
+.quick-add{display:flex;gap:0;border:1px solid var(--line-2);border-radius:2px;overflow:hidden;background:var(--bg-2)}
+.quick-add input,.quick-add select{all:unset;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg);background:transparent}
+.quick-add input{flex:1;min-width:0}
+.quick-add select{border-left:1px solid var(--line);color:var(--fg-dim);cursor:pointer;padding-right:24px;-webkit-appearance:none;appearance:none}
+.quick-add input::placeholder{color:var(--fg-mute)}
+.quick-add button{all:unset;cursor:pointer;padding:12px 18px;background:var(--accent);color:var(--bg);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;transition:background 0.15s}
+.quick-add button:hover{background:var(--accent-2)}
+.season-box{padding:20px;background:linear-gradient(135deg,rgba(255,122,60,0.05),transparent 70%);border:1px solid var(--line);border-radius:var(--radius-lg);display:flex;flex-direction:column;gap:12px}
+.season-box .season-dates{display:flex;justify-content:space-between;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-mute)}
+.season-box .season-text{font-family:'Instrument Serif',serif;font-size:15px;line-height:1.55;color:var(--fg-2)}
+.season-box .season-bar{height:3px;background:var(--bg-4);border-radius:2px;overflow:hidden}
+.season-box .season-bar .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--cool));transition:width 0.4s}
+.season-box .season-countdown{font-family:'Fraunces',serif;font-size:28px;font-weight:300;line-height:1;color:var(--fg)}
+.season-box .season-countdown em{font-family:'Instrument Serif',serif;color:var(--accent)}
+.season-box .season-countdown .unit{font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg-dim);margin-left:6px;vertical-align:middle}
+.season-edit{all:unset;cursor:pointer;font-size:10px;color:var(--fg-dim);border:1px solid var(--line);padding:4px 8px;border-radius:2px;align-self:flex-start;margin-top:6px;letter-spacing:0.1em;text-transform:uppercase}
+.season-edit:hover{color:var(--fg);border-color:var(--line-2)}
+.lab-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:900px){.lab-grid{grid-template-columns:1fr}}
+.capture-item{padding:14px 16px;background:var(--bg-2);border:1px solid var(--line);border-left:2px solid var(--green);border-radius:2px;display:flex;flex-direction:column;gap:6px;position:relative}
+.capture-item .txt{font-size:13px;color:var(--fg);line-height:1.5}
+.capture-item .meta{display:flex;gap:12px;font-size:10px;color:var(--fg-mute);letter-spacing:0.08em}
+.capture-item .tag{color:var(--green);text-transform:lowercase}
+.capture-item .actions{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transition:opacity 0.15s}
+.capture-item:hover .actions{opacity:1}
+.capture-item .actions button{all:unset;cursor:pointer;font-size:10px;padding:3px 6px;color:var(--fg-mute);border:1px solid var(--line);border-radius:2px}
+.capture-item .actions button:hover{color:var(--fg);border-color:var(--line-2)}
+.lab-projects-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media (max-width:1000px){.lab-projects-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.lab-projects-grid{grid-template-columns:1fr}}
+.lab-proj-card{padding:14px;background:var(--bg-2);border:1px solid var(--line);border-left:2px solid var(--green);border-radius:2px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 0.15s;min-height:110px}
+.lab-proj-card:hover{background:var(--bg-3);border-color:var(--line-2)}
+.lab-proj-card .lpc-name{font-family:'Fraunces',serif;font-size:15px;font-weight:400;line-height:1.3}
+.lab-proj-card .lpc-desc{font-size:11px;color:var(--fg-dim);line-height:1.4;flex:1}
+.lab-proj-card .lpc-meta{display:flex;justify-content:space-between;align-items:center;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-mute);margin-top:4px;padding-top:8px;border-top:1px solid var(--line)}
+.lab-proj-card .lpc-meta .phase{color:var(--fg-dim)}
+.lab-proj-card .lpc-meta .promote{color:var(--accent);opacity:0;transition:opacity 0.15s;cursor:pointer}
+.lab-proj-card:hover .lpc-meta .promote{opacity:1}
+.phase-chart{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px}
+.phase-chart svg{width:100%;height:auto;display:block}
+.phase-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+@media (max-width:800px){.phase-legend{grid-template-columns:1fr 1fr}}
+.phase-item{display:flex;flex-direction:column;gap:6px}
+.phase-item .dot{width:10px;height:10px;border-radius:50%}
+.phase-item .ph-name{font-family:'Fraunces',serif;font-size:16px;font-weight:400}
+.phase-item .ph-name em{font-family:'Instrument Serif',serif;color:var(--accent)}
+.phase-item .ph-desc{font-size:11px;color:var(--fg-dim);line-height:1.5}
+.proj-progress-list{margin-top:24px;display:flex;flex-direction:column;gap:8px}
+.proj-progress-row{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:14px 16px;background:var(--bg-2);border:1px solid var(--line);border-radius:2px;cursor:pointer}
+.proj-progress-row:hover{border-color:var(--line-2)}
+.proj-progress-row .name{font-size:13px;color:var(--fg);font-weight:500}
+.proj-progress-row .name em{font-style:normal;color:var(--fg-dim);font-size:11px;display:block;margin-top:2px}
+.proj-progress-row .phase-badge{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 8px;border-radius:2px;border:1px solid currentColor}
+.ph-luademel{color:var(--yellow)}
+.ph-plato{color:var(--cool)}
+.ph-vale{color:var(--red)}
+.ph-otimismo{color:var(--green)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg-2);border:1px solid var(--line-2);border-radius:var(--radius-lg);padding:32px 36px;width:min(720px,95vw);max-height:90vh;overflow-y:auto}
+.modal h3{font-size:26px;font-weight:300;margin-bottom:4px}
+.modal h3 em{font-family:'Instrument Serif',serif;color:var(--accent);font-weight:400}
+.modal .sub{font-size:12px;color:var(--fg-dim);margin-bottom:24px}
+.modal-row{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.modal-row label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg-dim)}
+.modal-row input,.modal-row select,.modal-row textarea{all:unset;padding:10px 12px;background:var(--bg);border:1px solid var(--line-2);border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg);transition:border 0.15s;width:100%;box-sizing:border-box}
+.modal-row textarea{min-height:80px;line-height:1.5;resize:vertical}
+.modal-row input:focus,.modal-row select:focus,.modal-row textarea:focus{border-color:var(--accent)}
+.modal-row .hint{font-size:10px;color:var(--fg-mute);margin-top:2px;font-family:'Instrument Serif',serif;font-size:13px}
+.modal-row-split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-row-split-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.modal-actions button{all:unset;cursor:pointer;padding:10px 18px;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;border:1px solid var(--line-2);border-radius:2px;color:var(--fg-2);transition:all 0.15s}
+.modal-actions button.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.modal-actions button.primary:hover{background:var(--accent-2)}
+.modal-actions button.danger{color:var(--red);border-color:rgba(232,106,92,0.3)}
+.modal-actions button.danger:hover{background:rgba(232,106,92,0.08)}
+.modal-actions button:hover{border-color:var(--line-3);color:var(--fg)}
+.task-editor{background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:16px;margin-top:4px}
+.task-editor .te-title{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg-dim);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+.task-editor .te-title .hint{color:var(--fg-mute);font-family:'Instrument Serif',serif;font-size:13px;text-transform:none;letter-spacing:0}
+.task-add{display:grid;grid-template-columns:1fr auto auto auto auto;gap:6px;align-items:center;padding:10px;background:var(--bg-3);border-radius:2px;margin-bottom:10px}
+.task-add input[type="text"]{all:unset;padding:8px 10px;font-size:12px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:2px}
+.task-add input[type="number"]{all:unset;padding:8px 10px;font-size:12px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:2px;width:60px;text-align:right}
+.task-add label{font-size:10px;color:var(--fg-dim);display:flex;align-items:center;gap:6px;cursor:pointer;letter-spacing:0.05em}
+.task-add input[type="checkbox"]{cursor:pointer;accent-color:var(--accent)}
+.task-add button{all:unset;cursor:pointer;padding:8px 14px;background:var(--accent);color:var(--bg);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;border-radius:2px}
+.task-add button:hover{background:var(--accent-2)}
+@media (max-width:700px){.task-add{grid-template-columns:1fr 1fr}}
+.task-list-pm{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;padding-right:4px}
+.tpm-item{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:2px;font-size:12px;transition:all 0.15s}
+.tpm-item:hover{border-color:var(--line-2)}
+.tpm-item.done{opacity:0.5}
+.tpm-item.done .tpm-text{text-decoration:line-through}
+.tpm-item .tpm-check{width:16px;height:16px;border:1.5px solid var(--line-3);border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent}
+.tpm-item .tpm-check.checked{background:var(--accent);border-color:var(--accent)}
+.tpm-item .tpm-check.checked::after{content:"";width:4px;height:7px;border-right:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:rotate(45deg) translate(0,-1px)}
+.tpm-item .tpm-text{font-size:12px;color:var(--fg);line-height:1.4}
+.tpm-item .tpm-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tpm-badge{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:2px 6px;border:1px solid var(--line-2);border-radius:2px;color:var(--fg-dim);white-space:nowrap}
+.tpm-badge.rec{color:var(--accent);border-color:rgba(255,122,60,0.3)}
+.tpm-badge.prog{color:var(--cool);border-color:rgba(108,181,204,0.3)}
+.tpm-badge.stats{color:var(--green);border-color:rgba(138,184,122,0.3)}
+.tpm-item .tpm-rm{cursor:pointer;color:var(--fg-mute);font-size:14px;padding:2px 6px;transition:color 0.15s}
+.tpm-item .tpm-rm:hover{color:var(--red)}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:900px){.help-grid{grid-template-columns:1fr}}
+.help-card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:26px}
+.help-card h3{font-size:22px;font-weight:300;margin-bottom:10px}
+.help-card h3 em{font-family:'Instrument Serif',serif;color:var(--accent);font-weight:400}
+.help-card p{font-size:12px;color:var(--fg-2);line-height:1.7;margin-bottom:10px}
+.help-card .kbd{display:inline-block;padding:1px 6px;background:var(--bg-3);border:1px solid var(--line-2);border-radius:2px;font-size:10px;color:var(--fg)}
+.view{display:none}
+.view.active{display:block;animation:fadeIn 0.3s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg-4);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--fg-mute)}
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;background:var(--bg-3);border:1px solid var(--line-2);border-left:3px solid var(--accent);border-radius:2px;font-size:12px;color:var(--fg);transform:translateY(120%);opacity:0;transition:all 0.3s;z-index:200}
+.toast.show{transform:translateY(0);opacity:1}
+.offline-banner{position:fixed;top:0;left:0;right:0;z-index:1000;padding:10px 20px;background:var(--red);color:var(--bg);text-align:center;font-size:12px;font-weight:500;letter-spacing:0.05em;display:none}
+.offline-banner.show{display:block}
+.ten-block{padding:22px;background:linear-gradient(135deg,rgba(255,122,60,0.06),transparent 70%);border:1px solid var(--line);border-radius:var(--radius-lg);position:relative;overflow:hidden}
+.ten-block::before{content:"10%";position:absolute;top:-30px;right:-10px;font-family:'Fraunces',serif;font-size:140px;font-weight:300;color:var(--accent);opacity:0.06;line-height:1}
+.ten-block h3{font-size:20px;font-weight:300;margin-bottom:6px}
+.ten-block h3 em{font-family:'Instrument Serif',serif;color:var(--accent);font-weight:400}
+.ten-block p{font-size:11px;color:var(--fg-dim);line-height:1.55;max-width:36ch;font-family:'Instrument Serif',serif;font-size:13px}
+.ten-stats{display:flex;gap:20px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.ten-stat .n{font-family:'Fraunces',serif;font-size:28px;font-weight:300;line-height:1}
+.ten-stat .n em{font-family:'Instrument Serif',serif;color:var(--accent);font-weight:400}
+.ten-stat .l{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg-dim);margin-top:4px}
+.ten-per-project{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:11px;color:var(--fg-dim);max-height:120px;overflow-y:auto}
+.ten-per-project .tp-row{display:flex;justify-content:space-between;padding:2px 0}
+.ten-per-project .tp-row strong{color:var(--fg-2)}
+</style>
+</head>
+<body>
+
+<div class="offline-banner" id="offlineBanner">⚠ Servidor local sem resposta. Suas alterações NÃO estão sendo salvas. Verifique a janela preta do terminal do Sistema M.</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">M<em>.</em></div>
+      <div class="tag">Sistema Operacional Pessoal</div>
+      <div class="user" id="userName"></div>
+      <div class="sync-badge">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncLabel">conectado</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <button data-view="today" class="active"><span>Hoje</span><span class="key">1</span></button>
+      <button data-view="pilares"><span>Pilares</span><span class="key">2</span></button>
+      <button data-view="lab"><span>Laboratório</span><span class="key">3</span></button>
+      <button data-view="progresso"><span>Progresso</span><span class="key">4</span></button>
+      <button data-view="ajuda"><span>Manual</span><span class="key">?</span></button>
+    </nav>
+    <div class="meta">
+      <div><strong id="dateToday">—</strong></div>
+      <div>Streak 10%: <strong id="streakDisplay">0 dias</strong></div>
+      <div style="margin-top:10px">Projetos ativos: <strong id="projCount">—</strong></div>
+      <div>Capturas no lab: <strong id="capCount">—</strong></div>
+      <div style="margin-top:10px;font-size:9px">Dados: <strong>dados/sistema-m.json</strong></div>
+    </div>
+    <div class="sidebar-actions">
+      <button id="btnExport">Exportar</button>
+      <button id="btnImport">Importar</button>
+      <button id="btnReset" title="Zera todos os dados">Reset</button>
+    </div>
+  </aside>
+
+  <main>
+    <section class="view active" id="view-today">
+      <header class="header">
+        <div class="title">
+          <h1>Hoje <em>— foco</em></h1>
+          <p>Um dia, uma lista. Tarefas diárias dos projetos aparecem automaticamente. Quando bater vontade de parar: +10% em vez de zero.</p>
+        </div>
+        <div class="stamp">
+          <span class="big" id="headerDate">—</span>
+          <span id="headerTime">—</span>
+        </div>
+      </header>
+      <div class="yesterday" id="yesterdayCard"></div>
+      <div class="growth-bar" id="growthBar"></div>
+      <div class="today-grid">
+        <div>
+          <div class="section-title">
+            <h2>Foco de <em>hoje</em></h2>
+            <span class="num" id="focusCounter">— / —</span>
+          </div>
+          <div class="focus-block" id="focusList"></div>
+          <div class="quick-add" style="margin-top:14px">
+            <input type="text" id="focusInput" placeholder="Tarefa única pra hoje (ex: 'ligar pro cliente X')" />
+            <select id="focusProject"></select>
+            <button id="focusAddBtn">Add</button>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--fg-mute);font-family:'Instrument Serif',serif;font-size:13px">Pra adicionar tarefas diárias/recorrentes, vá em Pilares e abra o projeto.</div>
+        </div>
+        <aside>
+          <div class="season-box" id="seasonBox"></div>
+          <div class="ten-block" style="margin-top:20px">
+            <h3>Regra dos <em>10%</em></h3>
+            <p>Planejou 3 aulas e só fez 1? Clica "+10%" na tarefa em vez de deixar em branco. Consistência medíocre vence empolgação brilhante.</p>
+            <div class="ten-stats">
+              <div class="ten-stat"><div class="n" id="tenToday"><em>0</em></div><div class="l">10% hoje</div></div>
+              <div class="ten-stat"><div class="n" id="tenStreak"><em>0</em></div><div class="l">streak</div></div>
+              <div class="ten-stat"><div class="n" id="tenTotal"><em>0</em></div><div class="l">total</div></div>
+            </div>
+            <div class="ten-per-project" id="tenPerProject"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view" id="view-pilares">
+      <header class="header">
+        <div class="title">
+          <h1>Pilares <em>do Sistema M</em></h1>
+          <p>Escolha <strong>um</strong> projeto de estabilidade (base financeira) e <strong>um</strong> de crescimento (mergulho 3-6 meses). Os demais vão pro laboratório.</p>
+        </div>
+        <div class="stamp"><span class="big">03</span><span>PILARES</span></div>
+      </header>
+      <div class="pillars">
+        <div class="pillar stability">
+          <div class="head"><h3>Estabi<em>lidade</em></h3><span class="tag">01 · Base</span></div>
+          <div class="subtitle">O que paga as contas. Einstein trabalhava com patentes — não precisa apaixonar.</div>
+          <div class="current" id="stabilityCurrent" data-pillar="stability"></div>
+          <div class="projects-list" id="stabilityList"></div>
+          <div class="pillar-actions"><button data-add-pillar="stability">+ Projeto</button></div>
+        </div>
+        <div class="pillar growth">
+          <div class="head"><h3>Cresci<em>mento</em></h3><span class="tag">02 · Foco</span></div>
+          <div class="subtitle">Mergulho da temporada. 3 a 6 meses. Atravessar o vale.</div>
+          <div class="current" id="growthCurrent" data-pillar="growth"></div>
+          <div class="projects-list" id="growthList"></div>
+          <div class="pillar-actions"><button data-add-pillar="growth">+ Projeto</button></div>
+        </div>
+        <div class="pillar laboratory">
+          <div class="head"><h3>Labora<em>tório</em></h3><span class="tag">03 · Sem compromisso</span></div>
+          <div class="subtitle">Curiosidades, obsessões de três semanas, projetos de sábado. Tudo bem se não virar nada.</div>
+          <div class="projects-list" id="laboratoryList" style="margin-top:8px"></div>
+          <div class="pillar-actions"><button data-add-pillar="laboratory">+ Projeto</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-lab">
+      <header class="header">
+        <div class="title">
+          <h1>Labora<em>tório</em></h1>
+          <p>Projetos de curiosidade (sem compromisso rígido) + capturas rápidas de ideias. Baixa pressão, alta exploração.</p>
+        </div>
+        <div class="stamp"><span class="big" id="capCount2">—</span><span>CAPTURAS</span></div>
+      </header>
+      <div class="section-title">
+        <h2>Projetos do <em>laboratório</em></h2>
+        <span class="num" id="labProjCount">—</span>
+      </div>
+      <div class="lab-projects-grid" id="labProjectsList" style="margin-bottom:32px"></div>
+      <div class="section-title">
+        <h2>Capturas <em>recentes</em></h2>
+        <span class="num">ATALHO: N</span>
+      </div>
+      <div class="block" style="margin-bottom:20px">
+        <div class="overline" style="margin-bottom:12px">Captura rápida</div>
+        <div class="quick-add">
+          <input type="text" id="capInput" placeholder="Uma ideia, uma pergunta, um link, uma conexão..." />
+          <input type="text" id="capTag" placeholder="#tag" style="max-width:200px;border-left:1px solid var(--line)" />
+          <button id="capBtn">Capturar</button>
+        </div>
+      </div>
+      <div class="lab-grid" id="capList"></div>
+    </section>
+
+    <section class="view" id="view-progresso">
+      <header class="header">
+        <div class="title">
+          <h1>Mapa <em>do vale</em></h1>
+          <p>Todo projeto passa pelas 4 fases. Saber onde você está já é metade da batalha — a outra é não desistir no vale.</p>
+        </div>
+        <div class="stamp"><span class="big">04</span><span>FASES</span></div>
+      </header>
+      <div class="phase-chart">
+        <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+          <g stroke="rgba(244,239,230,0.06)" stroke-width="0.5">
+            <line x1="40" y1="30" x2="40" y2="240"/><line x1="40" y1="240" x2="780" y2="240"/>
+            <line x1="40" y1="30" x2="780" y2="30" stroke-dasharray="2 4"/>
+            <line x1="40" y1="135" x2="780" y2="135" stroke-dasharray="2 4"/>
+          </g>
+          <text x="10" y="35" fill="var(--fg-mute)" font-size="9" font-family="JetBrains Mono">+</text>
+          <text x="10" y="245" fill="var(--fg-mute)" font-size="9" font-family="JetBrains Mono">−</text>
+          <text x="20" y="140" fill="var(--fg-mute)" font-size="9" font-family="JetBrains Mono" transform="rotate(-90 20 140)">FELICIDADE</text>
+          <text x="400" y="270" fill="var(--fg-mute)" font-size="9" font-family="JetBrains Mono" letter-spacing="2" text-anchor="middle">TEMPO · ESFORÇO · REPETIÇÃO</text>
+          <path d="M 40 135 Q 140 40, 240 70 Q 320 95, 380 150 Q 430 200, 500 225 Q 560 240, 620 200 Q 700 140, 780 55" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <g font-family="Fraunces" font-size="13" font-style="italic" fill="var(--fg-2)">
+            <text x="140" y="25" text-anchor="middle">Lua de mel</text>
+            <text x="340" y="25" text-anchor="middle">Platô</text>
+            <text x="540" y="25" text-anchor="middle">Vale</text>
+            <text x="720" y="25" text-anchor="middle">Otimismo racional</text>
+          </g>
+          <g font-family="JetBrains Mono" font-size="8" fill="var(--fg-mute)">
+            <text x="140" y="260" text-anchor="middle">1</text>
+            <text x="340" y="260" text-anchor="middle">2</text>
+            <text x="540" y="260" text-anchor="middle">3</text>
+            <text x="720" y="260" text-anchor="middle">4</text>
+          </g>
+          <g id="phaseDots"></g>
+        </svg>
+        <div class="phase-legend">
+          <div class="phase-item">
+            <div style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(--yellow)"></span><span class="ph-name">Lua de <em>mel</em></span></div>
+            <div class="ph-desc">Tudo é novidade, dopamina a mil. Armadilha: confundir empolgação com propósito.</div>
+          </div>
+          <div class="phase-item">
+            <div style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(--cool)"></span><span class="ph-name">Pla<em>tô</em></span></div>
+            <div class="ph-desc">"É mais difícil que eu pensava". Começa o trabalho de verdade.</div>
+          </div>
+          <div class="phase-item">
+            <div style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(--red)"></span><span class="ph-name">Va<em>le</em></span></div>
+            <div class="ph-desc">Você quer parar. Aqui a regra dos 10% salva. Atravessou, venceu.</div>
+          </div>
+          <div class="phase-item">
+            <div style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(--green)"></span><span class="ph-name">Oti<em>mismo</em></span></div>
+            <div class="ph-desc">Habilidade real aparecendo. Manutenção ou migração.</div>
+          </div>
+        </div>
+      </div>
+      <div class="proj-progress-list" id="projProgressList"></div>
+    </section>
+
+    <section class="view" id="view-ajuda">
+      <header class="header">
+        <div class="title">
+          <h1>Manual <em>do Sistema M</em></h1>
+          <p>O que esse app faz, por que existe, e como usar sem virar mais um cemitério de projetos.</p>
+        </div>
+        <div class="stamp"><span class="big">00</span><span>MANUAL</span></div>
+      </header>
+      <div class="help-grid">
+        <div class="help-card"><h3>Onde ficam os <em>dados</em></h3><p>Não ficam no navegador. Ficam no disco: <span class="kbd">dados/sistema-m.json</span>. Limpar cache não afeta nada.</p><p>Backups diários em <span class="kbd">dados/backups/</span> (60 dias).</p></div>
+        <div class="help-card"><h3>Dois <em>pilares</em></h3><p><strong>Estabilidade</strong>: paga as contas sem te drenar. <strong>Crescimento</strong>: um mergulho de 3–6 meses. Tudo o mais vai pro laboratório — sem culpa.</p></div>
+        <div class="help-card"><h3>Tarefas <em>diárias</em></h3><p>Dentro de cada projeto, crie tarefas. Marque como <strong>diária</strong> e ela aparece em "Hoje" todo dia automaticamente, até completar ou arquivar.</p><p>Ideal pra micro-hábitos: "3 aulas do curso", "30min de código", "1 post publicado".</p></div>
+        <div class="help-card"><h3>A regra dos <em>10%</em></h3><p>Neurociência: o córtex cingulado anterior ativa quando você faz algo que não quer. Se desiste toda vez, ele atrofia.</p><p>Não deu pra fazer a tarefa toda? Faz um pouquinho e clica <strong style="color:var(--accent)">+10%</strong>. Vale no streak, adiciona progresso menor. Zero é pior que pouco.</p></div>
+        <div class="help-card"><h3>Progresso <em>automático</em></h3><p>Cada tarefa tem um ganho de progresso. Completar uma tarefa diária incrementa o % do projeto. Um +10% incrementa menos, mas incrementa.</p></div>
+        <div class="help-card"><h3>As <em>4 fases</em></h3><p><strong>1 Lua de mel</strong> · <strong>2 Platô</strong> · <strong>3 Vale</strong> (maioria desiste) · <strong>4 Otimismo racional</strong>.</p></div>
+        <div class="help-card"><h3>Card <em>ontem</em></h3><p>No topo da tela Hoje aparece o resumo de ontem: tarefas feitas, +10% registrados, projetos tocados. Antídoto contra impulso de trocar de projeto.</p></div>
+        <div class="help-card"><h3>Atalhos</h3><p><span class="kbd">1</span> <span class="kbd">2</span> <span class="kbd">3</span> <span class="kbd">4</span> trocam de view. <span class="kbd">N</span> captura rápida. <span class="kbd">Esc</span> fecha modal.</p></div>
+        <div class="help-card"><h3>Acesso pela <em>rede local</em></h3><p>O servidor aceita conexões da sua LAN. A janela preta do servidor mostra o IP da rede (ex: http://192.168.0.10:3737) — use esse do notebook.</p><p>Windows pode pedir permissão de firewall na 1ª vez — libere redes privadas.</p></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="projectModal">
+  <div class="modal">
+    <h3 id="modalTitle">Projeto</h3>
+    <div class="sub" id="modalSub">—</div>
+    <div class="modal-row"><label>Nome</label><input type="text" id="pmName" placeholder="Ex: Curso de telecom" /></div>
+    <div class="modal-row"><label>Descrição</label><textarea id="pmDesc" placeholder="O que é, pra que existe, critério de sucesso..."></textarea></div>
+    <div class="modal-row-split">
+      <div class="modal-row"><label>Pilar</label><select id="pmPillar"><option value="stability">Estabilidade</option><option value="growth">Crescimento</option><option value="laboratory">Laboratório</option></select></div>
+      <div class="modal-row"><label>Fase atual</label><select id="pmPhase"><option value="luademel">1 · Lua de mel</option><option value="plato">2 · Platô</option><option value="vale">3 · Vale</option><option value="otimismo">4 · Otimismo racional</option></select></div>
+    </div>
+    <div class="modal-row-split-3">
+      <div class="modal-row"><label>Progresso (%)</label><input type="number" id="pmProgress" min="0" max="100" value="0" /></div>
+      <div class="modal-row"><label>Compromisso (meses)</label><input type="number" id="pmMonths" min="1" max="36" value="3" /></div>
+      <div class="modal-row"><label>Foco deste pilar?</label><select id="pmCurrent"><option value="false">Não</option><option value="true">Sim — foco atual</option></select></div>
+    </div>
+    <div class="modal-row"><label>Próximo passo concreto</label><input type="text" id="pmNextStep" placeholder="Ex: 'Terminar módulo 3 do curso'" /></div>
+    <div class="modal-row">
+      <label>Tarefas do projeto</label>
+      <div class="task-editor">
+        <div class="te-title"><span>Micro-tarefas</span><span class="hint">Diárias aparecem todo dia em "Hoje" até você completar.</span></div>
+        <div class="task-add">
+          <input type="text" id="pmTaskText" placeholder="Ex: 'Ver 3 aulas do curso'" />
+          <label><input type="checkbox" id="pmTaskRecurring" checked /> diária</label>
+          <label title="% adicionado ao projeto quando completar">+<input type="number" id="pmTaskProg" value="5" min="0" max="100" />%</label>
+          <label title="% adicionado num +10% parcial">+<input type="number" id="pmTaskProgPartial" value="1" min="0" max="100" />%·10%</label>
+          <button id="pmTaskAddBtn">Add</button>
+        </div>
+        <div class="task-list-pm" id="pmTaskList"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="danger" id="pmDelete">Apagar</button>
+      <button id="pmCancel">Cancelar</button>
+      <button class="primary" id="pmSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="seasonModal">
+  <div class="modal">
+    <h3>Temporada <em>atual</em></h3>
+    <div class="sub">Defina o prazo e o foco da temporada. Recomendado: 3 a 6 meses.</div>
+    <div class="modal-row"><label>Nota de foco</label><textarea id="smNote" placeholder="Qual é o foco desta temporada? Qual projeto de crescimento? Por quê?"></textarea></div>
+    <div class="modal-row-split">
+      <div class="modal-row"><label>Início</label><input type="date" id="smStart" /></div>
+      <div class="modal-row"><label>Fim previsto</label><input type="date" id="smEnd" /></div>
+    </div>
+    <div class="modal-actions">
+      <button id="smCancel">Cancelar</button>
+      <button class="primary" id="smSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3 id="cmTitle">Confirmar</h3>
+    <div class="sub" id="cmMsg">—</div>
+    <div id="cmExtra" style="background:var(--bg-3);padding:14px 16px;border-radius:3px;font-size:12px;color:var(--fg-2);line-height:1.6;margin-bottom:20px;display:none"></div>
+    <div class="modal-actions">
+      <button id="cmCancel">Cancelar</button>
+      <button class="primary" id="cmOk">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* SISTEMA M — v3 frontend */
+
+let state = null;
+let saveTimer = null;
+let isOnline = true;
+
+async function apiGet(){ const r = await fetch('/api/data'); if(!r.ok) throw new Error('GET '+r.status); return await r.json(); }
+async function apiPost(data){ const r = await fetch('/api/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); if(!r.ok) throw new Error('POST '+r.status); return await r.json(); }
+
+function markSync(s){
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  const banner = document.getElementById('offlineBanner');
+  dot.classList.remove('saving','error');
+  if(s==='saving'){ dot.classList.add('saving'); lbl.textContent='salvando...'; banner.classList.remove('show'); isOnline=true; }
+  else if(s==='ok'){ lbl.textContent='conectado · salvo'; banner.classList.remove('show'); isOnline=true; }
+  else if(s==='error'){ dot.classList.add('error'); lbl.textContent='OFFLINE'; banner.classList.add('show'); isOnline=false; }
+}
+
+function saveState(immediate){
+  clearTimeout(saveTimer);
+  markSync('saving');
+  const doSave = async () => {
+    try { await apiPost(state); markSync('ok'); }
+    catch(e){ console.error('Save:',e); markSync('error'); }
+  };
+  if(immediate) doSave();
+  else saveTimer = setTimeout(doSave, 400);
+}
+
+const isoToday = () => new Date().toISOString().slice(0,10);
+const isoYesterday = () => { const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); };
+const uid = () => Math.random().toString(36).slice(2,10);
+const daysBetween = (a,b) => Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00'))/86400000);
+const escapeHtml = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const truncate = (s,n)=>{ s=String(s||''); return s.length>n ? s.slice(0,n-1)+'…' : s; };
+const formatDateShort = iso => new Date(iso+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+function todayStatus(task){
+  const t = isoToday();
+  const c = (task.completions||[]).find(x => x.date === t);
+  return c ? c.type : null;
+}
+function completionsOfDate(task, date){
+  return (task.completions||[]).find(x => x.date === date);
+}
+function ensureTaskShape(t){
+  if(typeof t.recurring === 'undefined') t.recurring = false;
+  if(typeof t.progressOnComplete !== 'number') t.progressOnComplete = 5;
+  if(typeof t.progressOnPartial !== 'number') t.progressOnPartial = 1;
+  if(!t.completions) t.completions = [];
+  if(typeof t.archived === 'undefined') t.archived = false;
+  if(!t.id) t.id = 't-'+uid();
+  if(!t.createdAt) t.createdAt = isoToday();
+  if(t.done === true && !t.recurring && t.completions.length === 0){
+    t.completions.push({ date: t.createdAt || isoToday(), type: 'full' });
+  }
+  delete t.done;
+  return t;
+}
+function migrateState(s){
+  if(!s) return s;
+  s.version = 3;
+  if(!s.tenPercent) s.tenPercent = { today:0, total:0, streak:0, lastDate:null, byProject:{} };
+  if(!s.tenPercent.byProject) s.tenPercent.byProject = {};
+  if(!s.history) s.history = {};
+  if(!s.captures) s.captures = [];
+  if(!s.focus) s.focus = { date: isoToday(), items: [] };
+  if(!s.season) s.season = { startDate: isoToday(), endDate:'', focusNote:'' };
+  if(typeof s.season.endDate === 'undefined') s.season.endDate = '';
+  if(!s.projects) s.projects = [];
+  s.projects.forEach(p => {
+    if(!p.tasks) p.tasks = [];
+    p.tasks.forEach(ensureTaskShape);
+    if(typeof p.archived === 'undefined') p.archived = false;
+  });
+  return s;
+}
+
+function handleDayRollover(){
+  const today = isoToday();
+  if(state.focus.date !== today){
+    const yest = state.focus.date;
+    const touched = new Set();
+    const recCompletions = [];
+    (state.focus.items || []).forEach(i => { if(i.projectId) touched.add(i.projectId); });
+    state.projects.forEach(p => {
+      p.tasks.forEach(t => {
+        if(!t.recurring) return;
+        const c = completionsOfDate(t, yest);
+        if(c){ touched.add(p.id); recCompletions.push({ projectId:p.id, projectName:p.name, taskText:t.text, type:c.type }); }
+      });
+    });
+    const growth = state.projects.find(p => p.pillar==='growth' && p.current);
+    state.history[yest] = {
+      focusItems: state.focus.items || [],
+      tenCount: state.tenPercent.today || 0,
+      projectsTouched: Array.from(touched),
+      growthPillarId: growth ? growth.id : null,
+      growthPillarName: growth ? growth.name : null,
+      recurringCompletions: recCompletions
+    };
+    state.focus = { date: today, items: [] };
+    if(state.tenPercent.lastDate && daysBetween(state.tenPercent.lastDate, today) > 1){
+      state.tenPercent.streak = 0;
+    }
+    state.tenPercent.today = 0;
+    const keys = Object.keys(state.history).sort();
+    while(keys.length > 180) delete state.history[keys.shift()];
+    saveState(true);
+  }
+}
+
+function setView(view){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('view-'+view);
+  if(el) el.classList.add('active');
+  const btn = document.querySelector('.nav button[data-view="'+view+'"]');
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('.nav button').forEach(btn => btn.addEventListener('click', () => setView(btn.dataset.view)));
+document.addEventListener('keydown', e => {
+  if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+  const k = e.key.toLowerCase();
+  if(k==='1') setView('today');
+  else if(k==='2') setView('pilares');
+  else if(k==='3') setView('lab');
+  else if(k==='4') setView('progresso');
+  else if(k==='?') setView('ajuda');
+  else if(k==='n'){ setView('lab'); setTimeout(()=>document.getElementById('capInput').focus(),100); }
+  else if(k==='escape'){ closeModal(); closeConfirm(); closeSeasonModal(); }
+});
+
+function renderSidebar(){
+  const userLabel = (state.user && state.user.name) ? (state.user.name + (state.user.location ? ' · '+state.user.location : '')) : '';
+  document.getElementById('userName').textContent = userLabel;
+  document.getElementById('dateToday').textContent = formatDateShort(isoToday());
+  document.getElementById('streakDisplay').textContent = (state.tenPercent.streak||0)+' dia'+(state.tenPercent.streak===1?'':'s');
+  document.getElementById('projCount').textContent = state.projects.filter(p=>!p.archived).length;
+  document.getElementById('capCount').textContent = state.captures.length;
+}
+
+function renderHeader(){
+  const d = new Date();
+  document.getElementById('headerDate').textContent = d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+  document.getElementById('headerTime').textContent = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' · '+d.toLocaleDateString('pt-BR',{weekday:'long'}).toUpperCase();
+}
+
+function renderYesterday(){
+  const card = document.getElementById('yesterdayCard');
+  const yest = isoYesterday();
+  const yData = state.history && state.history[yest];
+
+  if(!yData){
+    const firstTime = Object.keys(state.history||{}).length === 0 && state.projects.length === 0;
+    card.innerHTML = '<h3>'+(firstTime ? 'Sistema M <em>— bem vindo</em>' : 'Nenhum <em>registro</em> de ontem')+'</h3>'+
+      '<div class="summary">'+(firstTime
+        ? 'Comece cadastrando projetos em Pilares (tecla 2). Dentro de cada um, crie tarefas diárias — elas aparecem aqui em Hoje todo dia. Amanhã este card vai te lembrar do que fez.'
+        : 'Você não usou o sistema ontem. Tudo bem — consistência perfeita não existe. Retome hoje.')+'</div>'+
+      '<div class="motto">'+(firstTime ? '"O tempo é o recurso fundamental."' : '"Dia novo é reiniciar o compromisso. Não começar de novo — continuar."')+'</div>';
+    return;
+  }
+
+  const manual = yData.focusItems || [];
+  const manualDone = manual.filter(i => i.done).length;
+  const rec = yData.recurringCompletions || [];
+  const recFull = rec.filter(r => r.type === 'full').length;
+  const recPartial = rec.filter(r => r.type === 'partial').length;
+  const totalDone = manualDone + recFull + recPartial;
+  const totalItems = manual.length + rec.length;
+  const touched = (yData.projectsTouched||[]).map(id => state.projects.find(p=>p.id===id)).filter(Boolean);
+
+  const growthMsg = yData.growthPillarName
+    ? 'Seu pilar de crescimento segue: <em>'+escapeHtml(yData.growthPillarName)+'</em>. Continue.'
+    : 'Você ainda não tem pilar de crescimento. <em>Próximo passo: escolher.</em>';
+
+  const mottos = [
+    '"Você não está atrasado — está atravessando o vale."',
+    '"Troca de projeto hoje = abandono no vale amanhã."',
+    '"Quem desiste no vale volta pro zero."',
+    '"Regra dos 10% existe porque força de vontade não existe."',
+    '"Consistência medíocre vence empolgação brilhante."'
+  ];
+  const motto = mottos[new Date().getDate() % mottos.length];
+
+  const miniItems = []
+    .concat(manual.slice(0,3).map(i => ({ text: i.text, cls: i.done ? '' : 'undone' })))
+    .concat(rec.slice(0,3).map(r => ({ text: r.taskText + ' · ' + truncate(r.projectName,20), cls: r.type==='partial'?'partial':'' })));
+
+  card.innerHTML = '<h3>Ontem <em>você...</em></h3>'+
+    '<div class="summary">'+
+      '<div>✓ <strong>'+totalDone+'</strong> de <strong>'+totalItems+'</strong> tarefas '+(recPartial?'· <strong>'+recPartial+'</strong> +10% parcial':'')+'</div>'+
+      (touched.length ? '<div style="margin-top:6px">Tocou em: '+touched.map(p=>'<em>'+escapeHtml(p.name)+'</em>').join(', ')+'</div>' : '')+
+      '<div style="margin-top:6px">'+growthMsg+'</div>'+
+    '</div>'+
+    (miniItems.length ? '<div class="mini-tasks">'+
+      miniItems.map(m => '<div class="mini-task '+m.cls+'">'+escapeHtml(truncate(m.text,72))+'</div>').join('')+
+      ((manual.length+rec.length) > 6 ? '<div class="mini-task undone">…+'+((manual.length+rec.length)-6)+' mais</div>' : '')+
+    '</div>' : '')+
+    '<div class="motto">'+motto+'</div>';
+}
+
+function renderGrowthBar(){
+  const bar = document.getElementById('growthBar');
+  const growth = state.projects.find(p => p.pillar==='growth' && p.current && !p.archived);
+
+  if(!growth){
+    bar.className = 'growth-bar empty';
+    bar.innerHTML = '<div class="gb-info">'+
+      '<div class="label">Pilar de crescimento</div>'+
+      '<div class="name">Nenhum foco de crescimento definido</div>'+
+      '<div class="next">Vá em Pilares (tecla 2) e escolha um projeto pra promover pelos próximos 3–6 meses.</div>'+
+      '</div><div class="gb-progress"></div>';
+    return;
+  }
+
+  bar.className = 'growth-bar';
+  const start = growth.currentSince || growth.createdAt || isoToday();
+  const daysIn = Math.max(0, daysBetween(start, isoToday()));
+  const totalDays = (growth.commitmentMonths||3) * 30;
+  const pct = Math.min(100, Math.round((daysIn/totalDays)*100));
+  const remain = Math.max(0, totalDays - daysIn);
+
+  bar.innerHTML = '<div class="gb-info">'+
+    '<div class="label">Pilar de crescimento · temporada</div>'+
+    '<div class="name">'+escapeHtml(growth.name)+'</div>'+
+    (growth.nextStep ? '<div class="next">Próximo: '+escapeHtml(growth.nextStep)+'</div>' : '')+
+    '</div>'+
+    '<div class="gb-progress">'+
+      '<div class="timing"><span>Dia '+daysIn+' de '+totalDays+'</span><span>'+pct+'%</span></div>'+
+      '<div class="bar"><div class="fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="timing" style="color:var(--fg-mute)"><span>'+(remain>0 ? remain+' dias restantes' : 'Compromisso cumprido · reavalie')+'</span><span></span></div>'+
+    '</div>';
+}
+
+function renderFocus(){
+  const list = document.getElementById('focusList');
+  list.innerHTML = '';
+  const recurringRows = [];
+  state.projects.filter(p => !p.archived).forEach(p => {
+    p.tasks.filter(t => t.recurring && !t.archived).forEach(t => {
+      recurringRows.push({ type:'recurring', task:t, project:p });
+    });
+  });
+  const manualRows = (state.focus.items||[]).map(i => ({ type:'manual', item:i }));
+  const all = recurringRows.concat(manualRows);
+
+  if(all.length === 0){
+    list.innerHTML = '<div class="empty-hint">Nenhuma tarefa pra hoje.<br>Crie tarefas dentro dos projetos (view Pilares) ou adicione uma tarefa única abaixo.</div>';
+  }
+
+  let doneCount = 0, total = 0;
+  all.forEach(row => {
+    total++;
+    const div = document.createElement('div');
+    div.className = 'focus-row';
+    if(row.type === 'recurring'){
+      const t = row.task, p = row.project;
+      const status = todayStatus(t);
+      if(status === 'full'){ div.classList.add('done'); doneCount++; }
+      if(status === 'partial'){ div.classList.add('partial'); doneCount++; }
+      const checkClass = status==='full' ? 'checked' : (status==='partial' ? 'partial' : '');
+      const tenOn = status === 'partial' ? 'on' : '';
+      div.innerHTML =
+        '<div class="focus-check '+checkClass+'" data-rec="'+t.id+'" data-proj="'+p.id+'" title="Marcar como feito"></div>'+
+        '<div class="focus-text">'+escapeHtml(t.text)+'<span class="rec-badge">diária</span></div>'+
+        '<div class="focus-project" data-open-proj="'+p.id+'" title="Abrir projeto">'+escapeHtml(truncate(p.name,18))+'</div>'+
+        '<div class="focus-actions"><button class="focus-btn-ten '+tenOn+'" data-ten-rec="'+t.id+'" data-proj="'+p.id+'" title="Marcar como +10% parcial">+10%</button></div>';
+    } else {
+      const i = row.item;
+      if(i.done){ div.classList.add('done'); doneCount++; }
+      const proj = state.projects.find(p => p.id === i.projectId);
+      div.innerHTML =
+        '<div class="focus-check '+(i.done?'checked':'')+'" data-manual="'+i.id+'"></div>'+
+        '<div class="focus-text">'+escapeHtml(i.text)+'</div>'+
+        '<div class="focus-project" '+(proj?'data-open-proj="'+proj.id+'"':'')+'>'+(proj ? escapeHtml(truncate(proj.name,18)) : '—')+'</div>'+
+        '<div class="focus-delete" data-rm-manual="'+i.id+'" title="Remover">×</div>';
+    }
+    list.appendChild(div);
+  });
+  document.getElementById('focusCounter').textContent = doneCount + ' / ' + total;
+}
+
+function renderFocusProjectSelect(){
+  const sel = document.getElementById('focusProject');
+  sel.innerHTML = '<option value="">sem projeto</option>';
+  state.projects.filter(p => !p.archived).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = truncate(p.name, 30);
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('focusList').addEventListener('click', e => {
+  const rec = e.target.closest('[data-rec]');
+  if(rec){ toggleRecurringCompletion(rec.dataset.rec, rec.dataset.proj, 'full'); return; }
+  const ten = e.target.closest('[data-ten-rec]');
+  if(ten){ toggleRecurringCompletion(ten.dataset.tenRec, ten.dataset.proj, 'partial'); return; }
+  const mt = e.target.closest('[data-manual]');
+  if(mt){
+    const id = mt.dataset.manual;
+    const item = state.focus.items.find(i => i.id === id);
+    if(item) item.done = !item.done;
+    saveState(); renderFocus();
+    return;
+  }
+  const rm = e.target.closest('[data-rm-manual]');
+  if(rm){
+    state.focus.items = state.focus.items.filter(i => i.id !== rm.dataset.rmManual);
+    saveState(); renderFocus();
+    return;
+  }
+  const op = e.target.closest('[data-open-proj]');
+  if(op){ openProjectModal(op.dataset.openProj); }
+});
+
+function toggleRecurringCompletion(taskId, projId, type){
+  const project = state.projects.find(p => p.id === projId);
+  if(!project) return;
+  const task = project.tasks.find(t => t.id === taskId);
+  if(!task) return;
+
+  const today = isoToday();
+  const existing = task.completions.find(c => c.date === today);
+  const prevStatus = existing ? existing.type : null;
+
+  if(existing){
+    const delta = existing.type === 'full' ? (task.progressOnComplete||0) : (task.progressOnPartial||0);
+    project.progress = Math.max(0, Math.min(100, (project.progress||0) - delta));
+    if(existing.type === 'partial'){
+      state.tenPercent.today = Math.max(0, (state.tenPercent.today||0) - 1);
+      state.tenPercent.total = Math.max(0, (state.tenPercent.total||0) - 1);
+      state.tenPercent.byProject[projId] = Math.max(0, (state.tenPercent.byProject[projId]||0) - 1);
+    }
+    task.completions = task.completions.filter(c => c.date !== today);
+  }
+
+  if(prevStatus !== type){
+    task.completions.push({ date: today, type: type });
+    const delta = type === 'full' ? (task.progressOnComplete||0) : (task.progressOnPartial||0);
+    project.progress = Math.max(0, Math.min(100, (project.progress||0) + delta));
+    if(type === 'partial'){
+      state.tenPercent.today = (state.tenPercent.today||0) + 1;
+      state.tenPercent.total = (state.tenPercent.total||0) + 1;
+      state.tenPercent.byProject[projId] = (state.tenPercent.byProject[projId]||0) + 1;
+      if(state.tenPercent.lastDate !== today){
+        state.tenPercent.streak = (state.tenPercent.streak||0) + 1;
+        state.tenPercent.lastDate = today;
+      }
+      toast('+10% em "'+truncate(task.text,30)+'" · '+truncate(project.name,20));
+    } else if(type === 'full'){
+      toast('Feito: '+truncate(task.text,40)+' (+'+(task.progressOnComplete||0)+'%)');
+    }
+  }
+  saveState(); renderAll();
+}
+
+document.getElementById('focusAddBtn').addEventListener('click', addFocusItem);
+document.getElementById('focusInput').addEventListener('keydown', e => { if(e.key==='Enter') addFocusItem(); });
+function addFocusItem(){
+  const txt = document.getElementById('focusInput').value.trim();
+  if(!txt) return;
+  const projectId = document.getElementById('focusProject').value || null;
+  state.focus.items.push({ id: uid(), text: txt, projectId: projectId, done: false });
+  document.getElementById('focusInput').value = '';
+  saveState(); renderFocus();
+}
+
+function render10(){
+  document.getElementById('tenToday').innerHTML = '<em>'+(state.tenPercent.today||0)+'</em>';
+  document.getElementById('tenStreak').innerHTML = '<em>'+(state.tenPercent.streak||0)+'</em>';
+  document.getElementById('tenTotal').innerHTML = '<em>'+(state.tenPercent.total||0)+'</em>';
+  const el = document.getElementById('tenPerProject');
+  const entries = Object.entries(state.tenPercent.byProject||{})
+    .map(a => ({ id: a[0], count: a[1], project: state.projects.find(p => p.id === a[0]) }))
+    .filter(e => e.project && e.count > 0)
+    .sort((a,b) => b.count - a.count);
+  if(entries.length === 0){
+    el.innerHTML = '<div style="color:var(--fg-mute);font-style:italic;font-family:\'Instrument Serif\',serif;font-size:13px">Sem +10% registrados ainda. Próximo começa aqui.</div>';
+  } else {
+    el.innerHTML = '<div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;color:var(--fg-mute)">+10% por projeto</div>' +
+      entries.map(e => '<div class="tp-row"><span>'+escapeHtml(truncate(e.project.name,26))+'</span><strong>'+e.count+'</strong></div>').join('');
+  }
+}
+
+function renderSeason(){
+  const el = document.getElementById('seasonBox');
+  const s = state.season || {};
+  const hasDates = s.startDate && s.endDate;
+  let countdownHtml = '';
+  let barHtml = '';
+  if(hasDates){
+    const today = isoToday();
+    const totalDays = Math.max(1, daysBetween(s.startDate, s.endDate));
+    const doneDays = Math.max(0, Math.min(totalDays, daysBetween(s.startDate, today)));
+    const remainDays = totalDays - doneDays;
+    const pct = Math.round((doneDays/totalDays)*100);
+    countdownHtml = '<div class="season-countdown"><em>'+remainDays+'</em><span class="unit">dias restantes</span></div>';
+    barHtml = '<div class="season-bar"><div class="fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="season-dates"><span>Início '+formatDateShort(s.startDate)+'</span><span>'+pct+'%</span><span>Fim '+formatDateShort(s.endDate)+'</span></div>';
+  } else {
+    countdownHtml = '<div class="season-countdown" style="color:var(--fg-mute);font-style:italic;font-size:16px">Sem prazo definido</div>';
+  }
+  el.innerHTML = '<div class="overline">Foco da temporada</div>'+
+    countdownHtml + barHtml +
+    '<div class="season-text">'+escapeHtml(s.focusNote || 'Defina aqui o foco desta temporada: qual é seu pilar de crescimento, por quê, e qual o prazo.')+'</div>'+
+    '<button class="season-edit" id="btnSeasonEdit">Editar temporada</button>';
+}
+document.body.addEventListener('click', e => { if(e.target.id === 'btnSeasonEdit') openSeasonModal(); });
+
+function renderPillars(){
+  ['stability','growth','laboratory'].forEach(pil => {
+    const list = document.getElementById(pil+'List');
+    if(!list) return;
+    list.innerHTML = '';
+    const projs = state.projects.filter(p => p.pillar===pil && !p.current && !p.archived);
+    if(projs.length === 0 && pil === 'laboratory' && state.projects.filter(p=>p.pillar==='laboratory'&&!p.archived).length === 0){
+      list.innerHTML = '<div style="color:var(--fg-mute);font-size:11px;font-family:\'Instrument Serif\',serif;font-size:14px;padding:8px 0">Nada no laboratório ainda.</div>';
+    }
+    projs.forEach(p => list.appendChild(projCardEl(p)));
+  });
+  ['stability','growth'].forEach(pil => {
+    const el = document.getElementById(pil+'Current');
+    const current = state.projects.find(p => p.pillar===pil && p.current && !p.archived);
+    el.className = 'current' + (current ? '' : ' empty');
+    if(current){
+      el.innerHTML =
+        '<div class="label">'+(pil==='stability'?'Projeto atual':'Foco da temporada')+'</div>'+
+        '<div class="name">'+escapeHtml(current.name)+'</div>'+
+        '<div class="desc">'+escapeHtml(truncate(current.description,150))+'</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">'+
+          '<span style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg-mute)">FASE '+phaseLabel(current.phase)+'</span>'+
+          '<span style="font-size:11px;color:var(--accent);font-family:\'Fraunces\',serif">'+(current.progress||0)+'%</span>'+
+        '</div>';
+      el.onclick = () => openProjectModal(current.id);
+    } else {
+      el.innerHTML = '<div class="name">Definir '+(pil==='stability'?'estabilidade':'crescimento')+'</div><div class="desc">Clique pra criar ou promover um projeto.</div>';
+      el.onclick = () => openProjectModal(null, pil, true);
+    }
+  });
+}
+
+function projCardEl(p){
+  const div = document.createElement('div');
+  div.className = 'pcard phase-'+p.phase;
+  const activeTasks = p.tasks.filter(t => !t.archived);
+  const recTasks = activeTasks.filter(t => t.recurring).length;
+  const totalTasks = activeTasks.length;
+  div.innerHTML =
+    '<div class="pcard-top">'+
+      '<div class="pcard-name">'+escapeHtml(truncate(p.name,44))+'</div>'+
+      '<div class="pcard-phase">'+phaseLabel(p.phase)+'</div>'+
+    '</div>'+
+    '<div class="pbar"><div class="fill" style="width:'+(p.progress||0)+'%"></div></div>'+
+    '<div class="pcard-tasks">'+totalTasks+' tarefa'+(totalTasks===1?'':'s')+(recTasks?' · '+recTasks+' diária'+(recTasks===1?'':'s'):'')+' · '+(p.progress||0)+'%</div>';
+  div.addEventListener('click', () => openProjectModal(p.id));
+  return div;
+}
+
+function phaseLabel(ph){ return ({luademel:'LUA DE MEL',plato:'PLATÔ',vale:'VALE',otimismo:'OTIMISMO'}[ph] || '—'); }
+function pillarLabel(p){ return ({stability:'Estabilidade',growth:'Crescimento',laboratory:'Laboratório'}[p] || '—'); }
+
+document.querySelectorAll('[data-add-pillar]').forEach(btn => {
+  btn.addEventListener('click', () => openProjectModal(null, btn.dataset.addPillar, false));
+});
+
+function renderLab(){
+  const labList = document.getElementById('labProjectsList');
+  labList.innerHTML = '';
+  const labProjs = state.projects.filter(p => p.pillar==='laboratory' && !p.archived);
+  document.getElementById('labProjCount').textContent = labProjs.length;
+  if(labProjs.length === 0){
+    labList.innerHTML = '<div class="empty-hint" style="grid-column:1/-1">Sem projetos no laboratório. Toda curiosidade que não é prioridade agora cabe aqui. Use Pilares para criar.</div>';
+  }
+  labProjs.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'lab-proj-card';
+    card.innerHTML =
+      '<div class="lpc-name">'+escapeHtml(p.name)+'</div>'+
+      '<div class="lpc-desc">'+escapeHtml(truncate(p.description || 'Sem descrição.', 120))+'</div>'+
+      '<div class="lpc-meta">'+
+        '<span class="phase">'+phaseLabel(p.phase)+' · '+(p.progress||0)+'%</span>'+
+        '<span class="promote" data-promote="'+p.id+'">→ promover</span>'+
+      '</div>';
+    card.addEventListener('click', e => {
+      if(e.target.closest('[data-promote]')){
+        askConfirm({
+          title: 'Promover a <em>crescimento</em>?',
+          msg: 'Mover "'+escapeHtml(p.name)+'" para pilar de crescimento.',
+          extra: 'Se já existe um projeto de crescimento atual, ele continuará existindo (mas não marcado como foco). Depois você pode abrir o modal e marcar este como "foco atual".',
+          okLabel: 'Promover',
+          onOk: () => { p.pillar = 'growth'; saveState(true); renderAll(); toast('Promovido para crescimento.'); }
+        });
+        return;
+      }
+      openProjectModal(p.id);
+    });
+    labList.appendChild(card);
+  });
+
+  const cl = document.getElementById('capList');
+  cl.innerHTML = '';
+  const caps = state.captures.slice().reverse();
+  if(caps.length === 0){
+    cl.innerHTML = '<div class="empty-hint" style="grid-column:1/-1">Nenhuma captura. Use o campo acima ou aperte <span style="border:1px solid var(--line-2);padding:2px 6px;border-radius:2px;color:var(--fg)">N</span> em qualquer tela.</div>';
+  }
+  caps.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'capture-item';
+    el.innerHTML =
+      '<div class="txt">'+escapeHtml(c.text)+'</div>'+
+      '<div class="meta">'+
+        (c.tag ? '<span class="tag">#'+escapeHtml(c.tag.replace(/^#/,''))+'</span>' : '')+
+        '<span>'+formatDateShort(c.createdAt)+'</span>'+
+      '</div>'+
+      '<div class="actions">'+
+        '<button data-topromote="'+c.id+'" title="Virar projeto no laboratório">→ projeto</button>'+
+        '<button data-rm="'+c.id+'" title="Apagar">×</button>'+
+      '</div>';
+    cl.appendChild(el);
+  });
+  document.getElementById('capCount2').textContent = state.captures.length;
+}
+
+document.getElementById('capBtn').addEventListener('click', addCapture);
+document.getElementById('capInput').addEventListener('keydown', e => { if(e.key==='Enter') addCapture(); });
+document.getElementById('capTag').addEventListener('keydown', e => { if(e.key==='Enter') addCapture(); });
+function addCapture(){
+  const txt = document.getElementById('capInput').value.trim();
+  if(!txt) return;
+  const tag = document.getElementById('capTag').value.trim().replace(/^#/,'');
+  state.captures.push({ id: uid(), text: txt, tag: tag, createdAt: isoToday() });
+  document.getElementById('capInput').value = '';
+  document.getElementById('capTag').value = '';
+  saveState(); renderLab(); renderSidebar();
+  toast('Capturado. Pode esquecer.');
+}
+document.getElementById('capList').addEventListener('click', e => {
+  const rm = e.target.closest('[data-rm]');
+  if(rm){
+    if(!confirm('Apagar esta captura?')) return;
+    state.captures = state.captures.filter(c => c.id !== rm.dataset.rm);
+    saveState(); renderLab(); renderSidebar();
+    return;
+  }
+  const pr = e.target.closest('[data-topromote]');
+  if(pr){
+    const c = state.captures.find(x => x.id === pr.dataset.topromote);
+    if(!c) return;
+    state.projects.push({
+      id: 'p-'+uid(), name: truncate(c.text, 60), pillar: 'laboratory',
+      description: c.text, phase: 'luademel', progress: 0, commitmentMonths: 3,
+      nextStep: '', tasks: [], current: false, createdAt: isoToday(), archived: false
+    });
+    state.captures = state.captures.filter(x => x.id !== c.id);
+    saveState(); renderAll();
+    toast('Virou projeto no laboratório.');
+  }
+});
+
+function renderProgress(){
+  const dots = document.getElementById('phaseDots');
+  dots.innerHTML = '';
+  const X = { luademel:[60,220,50], plato:[220,400,120], vale:[400,580,200], otimismo:[580,770,80] };
+  const projs = state.projects.filter(p => !p.archived);
+  projs.forEach((p,i) => {
+    const range = X[p.phase] || X.plato;
+    const x = range[0] + (range[1]-range[0]) * ((i*0.37 + 0.2) % 1);
+    const y = range[2] + (i%3)*10 + Math.sin(i*1.3)*8;
+    const color = { luademel:'var(--yellow)', plato:'var(--cool)', vale:'var(--red)', otimismo:'var(--green)' }[p.phase] || 'var(--fg-dim)';
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('style','cursor:pointer');
+    g.innerHTML = '<circle cx="'+x+'" cy="'+y+'" r="5" fill="'+color+'" stroke="var(--bg)" stroke-width="1.5"/>'+
+      '<text x="'+(x+9)+'" y="'+(y+3)+'" fill="var(--fg-2)" font-size="9" font-family="JetBrains Mono">'+escapeHtml(truncate(p.name,20))+'</text>';
+    g.addEventListener('click', () => openProjectModal(p.id));
+    dots.appendChild(g);
+  });
+
+  const pList = document.getElementById('projProgressList');
+  pList.innerHTML = '';
+  if(projs.length === 0){
+    pList.innerHTML = '<div class="empty-hint">Sem projetos ainda. Crie em Pilares.</div>';
+  }
+  const order = { otimismo:0, plato:1, vale:2, luademel:3 };
+  projs.slice().sort((a,b) => order[a.phase] - order[b.phase]).forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'proj-progress-row';
+    row.innerHTML =
+      '<div class="name">'+escapeHtml(p.name)+'<em>'+pillarLabel(p.pillar)+' · '+(p.commitmentMonths||3)+' meses · '+(p.progress||0)+'%</em></div>'+
+      '<div class="phase-badge ph-'+p.phase+'">'+phaseLabel(p.phase)+'</div>'+
+      '<div style="font-size:10px;color:var(--fg-mute);letter-spacing:0.1em">→</div>';
+    row.addEventListener('click', () => openProjectModal(p.id));
+    pList.appendChild(row);
+  });
+}
+
+function openProjectModal(id, defaultPillar, isReplaceCurrent){
+  defaultPillar = defaultPillar || null;
+  isReplaceCurrent = !!isReplaceCurrent;
+  const isNew = !id;
+  let proj;
+  if(isNew){
+    proj = {
+      id: 'p-'+uid(), name: '', pillar: defaultPillar || 'laboratory',
+      description: '', phase: 'luademel', progress: 0, commitmentMonths: 3,
+      nextStep: '', tasks: [], current: isReplaceCurrent, createdAt: isoToday(),
+      archived: false, _isNew: true
+    };
+  } else {
+    proj = state.projects.find(p => p.id === id);
+    if(!proj) return;
+  }
+  document.getElementById('modalTitle').innerHTML = isNew ? 'Novo <em>projeto</em>' : 'Editar <em>projeto</em>';
+  document.getElementById('modalSub').textContent = isNew ? 'Defina o básico. Adicione tarefas logo em seguida.' : 'Editar projeto e suas tarefas.';
+  document.getElementById('pmName').value = proj.name || '';
+  document.getElementById('pmDesc').value = proj.description || '';
+  document.getElementById('pmPillar').value = proj.pillar;
+  document.getElementById('pmPhase').value = proj.phase;
+  document.getElementById('pmProgress').value = proj.progress || 0;
+  document.getElementById('pmMonths').value = proj.commitmentMonths || 3;
+  document.getElementById('pmNextStep').value = proj.nextStep || '';
+  document.getElementById('pmCurrent').value = proj.current ? 'true' : 'false';
+  renderModalTasks(proj);
+  window._editing = proj;
+  document.getElementById('pmDelete').style.display = isNew ? 'none' : '';
+  document.getElementById('projectModal').classList.add('open');
+  setTimeout(() => document.getElementById('pmName').focus(), 50);
+}
+
+function renderModalTasks(proj){
+  const list = document.getElementById('pmTaskList');
+  list.innerHTML = '';
+  const tasks = (proj.tasks||[]).filter(t => !t.archived);
+  if(tasks.length === 0){
+    list.innerHTML = '<div style="color:var(--fg-mute);font-size:11px;font-family:\'Instrument Serif\',serif;font-size:13px;padding:10px;text-align:center">Nenhuma tarefa. Adicione acima ↑</div>';
+  }
+  tasks.forEach(t => {
+    const row = document.createElement('div');
+    const status = todayStatus(t);
+    const isDoneToday = t.recurring ? (status === 'full') : (t.completions.length > 0);
+    row.className = 'tpm-item' + (isDoneToday ? ' done' : '');
+    const doneCount = (t.completions||[]).filter(c => c.type==='full').length;
+    const partialCount = (t.completions||[]).filter(c => c.type==='partial').length;
+    row.innerHTML =
+      '<div class="tpm-check '+(isDoneToday?'checked':'')+'" data-tcheck="'+t.id+'" title="'+(t.recurring?'Marcar feito hoje':'Marcar feito')+'"></div>'+
+      '<div class="tpm-text">'+escapeHtml(t.text)+'</div>'+
+      '<div class="tpm-badges">'+
+        (t.recurring ? '<span class="tpm-badge rec">DIÁRIA</span>' : '<span class="tpm-badge">única</span>')+
+        '<span class="tpm-badge prog">+'+(t.progressOnComplete||0)+'%</span>'+
+        ((t.recurring && (doneCount||partialCount)) ? '<span class="tpm-badge stats">'+doneCount+'✓'+(partialCount?' '+partialCount+'◐':'')+'</span>' : '')+
+      '</div>'+
+      '<span class="tpm-rm" data-trm="'+t.id+'" title="Remover tarefa">×</span>';
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('pmTaskAddBtn').addEventListener('click', addTaskInModal);
+document.getElementById('pmTaskText').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); addTaskInModal(); } });
+function addTaskInModal(){
+  const p = window._editing; if(!p) return;
+  const text = document.getElementById('pmTaskText').value.trim();
+  if(!text) return;
+  const recurring = document.getElementById('pmTaskRecurring').checked;
+  const prog = Math.max(0, Math.min(100, +document.getElementById('pmTaskProg').value||0));
+  const progPartial = Math.max(0, Math.min(100, +document.getElementById('pmTaskProgPartial').value||0));
+  p.tasks = p.tasks || [];
+  p.tasks.push({
+    id: 't-'+uid(), text: text, recurring: recurring,
+    progressOnComplete: prog, progressOnPartial: progPartial,
+    completions: [], archived: false, createdAt: isoToday()
+  });
+  document.getElementById('pmTaskText').value = '';
+  renderModalTasks(p);
+}
+
+document.getElementById('pmTaskList').addEventListener('click', e => {
+  const p = window._editing; if(!p) return;
+  const rm = e.target.closest('[data-trm]');
+  if(rm){
+    if(!confirm('Remover esta tarefa? O progresso já adicionado ao projeto fica.')) return;
+    p.tasks = p.tasks.filter(t => t.id !== rm.dataset.trm);
+    renderModalTasks(p);
+    return;
+  }
+  const check = e.target.closest('[data-tcheck]');
+  if(check){
+    const t = p.tasks.find(x => x.id === check.dataset.tcheck);
+    if(!t) return;
+    const today = isoToday();
+    if(t.recurring){
+      const existing = t.completions.find(c => c.date === today);
+      if(existing){
+        const delta = existing.type === 'full' ? (t.progressOnComplete||0) : (t.progressOnPartial||0);
+        p.progress = Math.max(0, Math.min(100, (p.progress||0) - delta));
+        if(existing.type === 'partial'){
+          state.tenPercent.today = Math.max(0, (state.tenPercent.today||0) - 1);
+          state.tenPercent.total = Math.max(0, (state.tenPercent.total||0) - 1);
+          state.tenPercent.byProject[p.id] = Math.max(0, (state.tenPercent.byProject[p.id]||0) - 1);
+        }
+        t.completions = t.completions.filter(c => c.date !== today);
+      } else {
+        t.completions.push({ date: today, type: 'full' });
+        p.progress = Math.max(0, Math.min(100, (p.progress||0) + (t.progressOnComplete||0)));
+      }
+    } else {
+      if(t.completions.length > 0){
+        const delta = t.progressOnComplete || 0;
+        p.progress = Math.max(0, Math.min(100, (p.progress||0) - delta));
+        t.completions = [];
+      } else {
+        t.completions.push({ date: today, type: 'full' });
+        p.progress = Math.max(0, Math.min(100, (p.progress||0) + (t.progressOnComplete||0)));
+      }
+    }
+    document.getElementById('pmProgress').value = p.progress;
+    renderModalTasks(p);
+  }
+});
+
+function closeModal(){ document.getElementById('projectModal').classList.remove('open'); window._editing = null; }
+document.getElementById('pmCancel').addEventListener('click', closeModal);
+document.getElementById('projectModal').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+
+document.getElementById('pmSave').addEventListener('click', () => {
+  const p = window._editing; if(!p) return;
+  const newPillar = document.getElementById('pmPillar').value;
+  const newCurrent = document.getElementById('pmCurrent').value === 'true';
+  const existingGrowthCurrent = state.projects.find(x => x.pillar === 'growth' && x.current && !x.archived && x.id !== p.id);
+  const isSwappingGrowth = newCurrent && newPillar === 'growth' && existingGrowthCurrent;
+  if(isSwappingGrowth){
+    const start = existingGrowthCurrent.currentSince || existingGrowthCurrent.createdAt || isoToday();
+    const daysIn = Math.max(0, daysBetween(start, isoToday()));
+    const totalDays = (existingGrowthCurrent.commitmentMonths||3) * 30;
+    const pctDone = Math.round((daysIn/totalDays)*100);
+    if(pctDone < 100){
+      askConfirm({
+        title: 'Trocar pilar de <em>crescimento</em>?',
+        msg: 'Você está abandonando um compromisso em andamento.',
+        extra: '<strong>'+escapeHtml(existingGrowthCurrent.name)+'</strong><br>Dia <strong>'+daysIn+'</strong> de <strong>'+totalDays+'</strong> ('+pctDone+'%).<br><br><em style="font-family:\'Instrument Serif\',serif;font-size:14px">"Se você desiste toda hora no vale, é isso que seu cérebro aprende."</em><br><br>Se a troca é consciente e tem motivo concreto, siga.',
+        okLabel: 'Trocar conscientemente',
+        onOk: () => doSaveProject(p)
+      });
+      return;
+    }
+  }
+  doSaveProject(p);
+});
+
+function doSaveProject(p){
+  p.name = document.getElementById('pmName').value.trim() || 'Sem nome';
+  p.description = document.getElementById('pmDesc').value.trim();
+  p.pillar = document.getElementById('pmPillar').value;
+  p.phase = document.getElementById('pmPhase').value;
+  p.progress = Math.max(0, Math.min(100, +document.getElementById('pmProgress').value||0));
+  p.commitmentMonths = Math.max(1, +document.getElementById('pmMonths').value||3);
+  p.nextStep = document.getElementById('pmNextStep').value.trim();
+  const newCurrent = document.getElementById('pmCurrent').value === 'true';
+  if(newCurrent && !p.current) p.currentSince = isoToday();
+  if(!newCurrent && p.current) delete p.currentSince;
+  p.current = newCurrent;
+  if(p.current){
+    state.projects.forEach(x => { if(x.pillar === p.pillar && x.id !== p.id) x.current = false; });
+  }
+  if(p._isNew){
+    delete p._isNew;
+    state.projects.push(p);
+    toast('Projeto criado.');
+  } else {
+    const idx = state.projects.findIndex(x => x.id === p.id);
+    if(idx >= 0) state.projects[idx] = p;
+    toast('Projeto atualizado.');
+  }
+  saveState(true); renderAll(); closeModal();
+}
+
+document.getElementById('pmDelete').addEventListener('click', () => {
+  const p = window._editing; if(!p || p._isNew) return;
+  askConfirm({
+    title: 'Apagar <em>projeto</em>?',
+    msg: 'Remover "'+escapeHtml(p.name)+'" permanentemente.',
+    extra: 'Se é projeto que deu errado, considere arquivar como aprendizado. Se é duplicata, siga.',
+    okLabel: 'Apagar',
+    onOk: () => {
+      state.projects = state.projects.filter(x => x.id !== p.id);
+      delete state.tenPercent.byProject[p.id];
+      saveState(true); renderAll(); closeModal();
+      toast('Projeto apagado.');
+    }
+  });
+});
+
+function openSeasonModal(){
+  const s = state.season || {};
+  document.getElementById('smNote').value = s.focusNote || '';
+  document.getElementById('smStart').value = s.startDate || '';
+  document.getElementById('smEnd').value = s.endDate || '';
+  document.getElementById('seasonModal').classList.add('open');
+}
+function closeSeasonModal(){ document.getElementById('seasonModal').classList.remove('open'); }
+document.getElementById('smCancel').addEventListener('click', closeSeasonModal);
+document.getElementById('seasonModal').addEventListener('click', e => { if(e.target === e.currentTarget) closeSeasonModal(); });
+document.getElementById('smSave').addEventListener('click', () => {
+  state.season = state.season || {};
+  state.season.focusNote = document.getElementById('smNote').value.trim();
+  state.season.startDate = document.getElementById('smStart').value;
+  state.season.endDate = document.getElementById('smEnd').value;
+  saveState(true); renderSeason(); closeSeasonModal();
+  toast('Temporada atualizada.');
+});
+
+function askConfirm(opts){
+  const title = opts.title, msg = opts.msg, extra = opts.extra || '';
+  const okLabel = opts.okLabel || 'Confirmar', onOk = opts.onOk;
+  document.getElementById('cmTitle').innerHTML = title;
+  document.getElementById('cmMsg').innerHTML = msg;
+  const ex = document.getElementById('cmExtra');
+  if(extra){ ex.innerHTML = extra; ex.style.display = 'block'; } else ex.style.display = 'none';
+  document.getElementById('cmOk').textContent = okLabel;
+  document.getElementById('confirmModal').classList.add('open');
+  window._confirmOk = onOk;
+}
+function closeConfirm(){ document.getElementById('confirmModal').classList.remove('open'); window._confirmOk = null; }
+document.getElementById('cmCancel').addEventListener('click', closeConfirm);
+document.getElementById('confirmModal').addEventListener('click', e => { if(e.target === e.currentTarget) closeConfirm(); });
+document.getElementById('cmOk').addEventListener('click', () => { const fn = window._confirmOk; closeConfirm(); if(typeof fn === 'function') fn(); });
+
+document.getElementById('btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='sistema-m-export-'+isoToday()+'.json'; a.click();
+  URL.revokeObjectURL(url); toast('Exportado.');
+});
+document.getElementById('btnImport').addEventListener('click', () => {
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='application/json,.json';
+  inp.onchange = e => {
+    const file = e.target.files[0]; if(!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const data = JSON.parse(r.result);
+        askConfirm({
+          title:'Importar <em>dados</em>?', msg:'Substituir TODOS os dados atuais.',
+          extra:'Um backup de hoje já foi criado em dados/backups/ automaticamente.',
+          okLabel:'Substituir', onOk:()=>{ state = migrateState(data); saveState(true); renderAll(); toast('Importado.'); }
+        });
+      } catch(err){ alert('Arquivo inválido: '+err.message); }
+    };
+    r.readAsText(file);
+  };
+  inp.click();
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  askConfirm({
+    title:'Resetar <em>tudo</em>?', msg:'Apagar TODOS os dados.',
+    extra:'Um backup do estado atual será salvo em dados/backups/ antes do reset.',
+    okLabel:'Resetar',
+    onOk: async () => {
+      try{
+        const r = await fetch('/api/reset',{method:'POST'});
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        state = migrateState(await r.json());
+        renderAll(); toast('Resetado. Backup salvo em dados/backups/');
+      } catch(e){ toast('Erro: '+e.message); }
+    }
+  });
+});
+
+function renderAll(){
+  renderSidebar(); renderHeader(); renderYesterday(); renderGrowthBar();
+  renderFocus(); renderFocusProjectSelect(); render10(); renderSeason();
+  renderPillars(); renderLab(); renderProgress();
+}
+
+async function init(){
+  try{
+    state = migrateState(await apiGet());
+    markSync('ok');
+    handleDayRollover();
+    renderAll();
+  } catch(e){
+    markSync('error');
+    document.querySelector('main').innerHTML =
+      '<div style="padding:80px 20px;text-align:center;color:var(--fg-2)">'+
+        '<h1 style="font-size:36px;font-weight:300;margin-bottom:20px" class="display">Servidor <em style="color:var(--accent);font-family:\'Instrument Serif\',serif">local offline</em></h1>'+
+        '<p style="color:var(--fg-dim);font-size:14px;max-width:46ch;margin:0 auto">O servidor Node.js não respondeu. Abra <strong>iniciar-sistema-m.bat</strong> no computador onde os dados estão e atualize esta página.</p>'+
+      '</div>';
+  }
+}
+
+init();
+setInterval(renderHeader, 30000);
+setInterval(() => {
+  if(!state) return;
+  fetch('/api/ping').then(r => { if(r.ok){ if(!isOnline) markSync('ok'); } }).catch(() => markSync('error'));
+}, 10000);
+</script>
+</body>
+</html>
